@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+.env
+.env.local
+*.sqlite3
+
+# Django
+staticfiles/
+media/
+*.log
+
+# Model & data (do not commit)
+Dataset/
+Model/
+*.pkl
+*.joblib
+*.csv
+*.xlsx
+
+# Office files (optional)
+*.docx
+*.pptx
+
+# OS
+.DS_Store
+Thumbs.db
