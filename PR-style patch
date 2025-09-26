@@ -1,0 +1,47 @@
+diff --git a/train_model.py b/src/train.py
+similarity index 50%
+rename from train_model.py
+rename to src/train.py
+--- a/train_model.py
++++ b/src/train.py
+@@
+-# your old training script logic
+-# single file pipeline, not modular
++import argparse
++import pandas as pd
++from sklearn.model_selection import cross_validate
++
++from src.data import load_csv, validate_dataframe
++from src.feature_engineering import build_preprocessor
++from src.model import build_pipeline
++from src.utils import save_model_with_meta
++
++NUMERIC_FEATURES = ["age", "height_cm", "weight_kg"]
++CATEGORICAL_FEATURES = ["gender", "activity_level"]
++
++def main(data_path, out_model):
++    df = load_csv(data_path)
++    missing = validate_dataframe(df)
++    if missing:
++        raise ValueError(f"Missing columns: {missing}")
++
++    X = df.drop(columns=["target"])
++    y = df["target"]
++
++    preproc = build_preprocessor(NUMERIC_FEATURES, CATEGORICAL_FEATURES)
++    pipe = build_pipeline(preproc)
++
++    res = cross_validate(pipe, X, y, cv=5, scoring=["accuracy"], return_train_score=False)
++    metrics = {k: float(v.mean()) for k, v in res.items()}
++
++    pipe.fit(X, y)
++    save_model_with_meta(pipe, out_model, metrics, list(X.columns))
++    print("Saved model to", out_model)
++
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--data", required=True)
++    parser.add_argument("--out-model", required=True)
++    args = parser.parse_args()
++    main(args.data, args.out_model)
